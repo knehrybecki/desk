@@ -9,6 +9,7 @@ import {
   type CardMode,
   type CoffeeLevel,
   type CoffeeStatus,
+  type Conversation,
   type GithubRepo,
   type Layout,
   type Project,
@@ -18,13 +19,13 @@ import {
   type Usage,
 } from "./api";
 import { detectLanguage, isLanguage, setLanguage, t, type Language } from "./i18n";
-import { actionFor, hints, keysIn, setCustomKeys, type Action } from "./keys";
+import { actionFor, hints, keysIn, keyText, setCustomKeys, type Action } from "./keys";
 import { PLATFORM, shortcut } from "./platform";
 import { Side } from "./side";
 import * as L from "./lanes";
 import { label, mark, sizable, splitLine, watchDrag, type Box } from "./drag";
 import { Palette } from "./palette";
-import { pickColor, PROJECT_COLORS, projectColor } from "./projects";
+import { ago, pickColor, PROJECT_COLORS, projectColor } from "./projects";
 import { keyOf, nextInstance, parseKey, sessionsLabel } from "./sessions";
 import { dropped } from "./address";
 import { DEFAULT_HOTKEY, hotkeyLabel } from "./hotkey";
@@ -55,6 +56,8 @@ const TIGHT_PX = 100;
 /** Within this distance of a lane's side, a dragged card makes a new lane (px). */
 const EDGE_PX = 40;
 const MAX_LANES = 8;
+/** Closed tiles ⌘⇧T can still reopen. */
+const CLOSED_KEPT = 20;
 
 export class App {
   private layout!: Layout;
@@ -67,6 +70,12 @@ export class App {
   private projectCache: Promise<Project[]> | null = null;
   private active: string | null = null;
   private opening = new Map<string, Promise<void>>();
+  /** Tiles closed with ⌘Q or ✕, newest last, for ⌘⇧T: key and the Claude conversation in it. */
+  private closed: { key: string; sessionId: string | null }[] = [];
+  /** No tmux: sessions end when desk quits. */
+  private tmuxMissing = false;
+  /** Tiles about to open a conversation again (⌘S): key → Claude session id. */
+  private resuming = new Map<string, string>();
   private earlyExits = new Map<number, string>(); // pty-exit that arrived before attach returned
   private missing: { key: string; lane: number }[] = [];
   private creatingProject = false;
@@ -260,6 +269,7 @@ export class App {
       if (t === "browser") this.side.browse();
       if (t === "update") void this.installUpdate();
       if (t === "leave") void api.dropdownLeave();
+      if (t === "quit") void this.quit();
     });
     const boot = await api.bootstrap();
     // First launch: the system's language, kept from now on.
@@ -274,6 +284,7 @@ export class App {
     this.chatPath = await api.chatDir().catch(() => "");
     for (const s of boot.states) this.hook.set(s.slug, s);
     for (const s of boot.sessions) this.running.add(keyOf(s));
+    this.tmuxMissing = boot.tmuxMissing;
     if (boot.tmuxMissing) {
       const install = PLATFORM === "mac" ? "brew install tmux" : "sudo apt install tmux";
       toast(t("app.noTmux", { install }), 15000);
@@ -367,8 +378,10 @@ export class App {
 
   private async createTile(key: string): Promise<Tile | null> {
     const spec = parseKey(key);
+    const resume = this.resuming.get(key);
+    this.resuming.delete(key);
     try {
-      const slug = await api.openSession(spec.path, spec.agent, spec.instance, this.layout.runs[key]);
+      const slug = await api.openSession(spec.path, spec.agent, spec.instance, this.layout.runs[key], resume);
       this.running.add(key);
       this.usageAt = 0; // a new harness may need its limits on the next poll
       if (this.tiles.has(key)) return null; // opened meanwhile (startup restore vs palette)
@@ -479,6 +492,46 @@ export class App {
     await this.openTile(keyOf({ path, agent: "shell", instance: nextInstance(taken, path, "shell") }));
   }
 
+  /** ⌘S: the project's recent Claude conversations. One still in a tile gets
+   *  the focus; another opens in a new tile with `claude --resume`. */
+  private async pickConversation(path: string): Promise<void> {
+    const name = path.split(/[\\/]/).filter(Boolean).pop() ?? path;
+    let found: Conversation[];
+    try {
+      found = await api.recentConversations(path);
+    } catch (err) {
+      return toast(t("app.conversationsFailed", { err: String(err) }));
+    }
+    if (!found.length) return toast(t("app.noConversations", { name }));
+    const tileOf = (id: string) =>
+      [...this.tiles.entries()].find(([, tile]) => {
+        const hook = this.hook.get(tile.slug);
+        return tile.path === path && hook?.sessionId === id && hook.state !== "exited";
+      })?.[0];
+    // pickBox picks by text: the same title twice gets a number.
+    const byLabel = new Map<string, Conversation>();
+    for (const c of found) {
+      const label = c.title ?? c.prompt;
+      let unique = label;
+      for (let n = 2; byLabel.has(unique); n++) unique = `${label} (${n})`;
+      byLabel.set(unique, c);
+    }
+    const note = (label: string) => {
+      const c = byLabel.get(label)!;
+      const open = tileOf(c.id) ? t("app.conversationOpen") : "";
+      return [open, ago(c.modifiedMs), c.branch ?? ""].filter(Boolean).join(" · ");
+    };
+    const picked = await pickBox(t("app.conversations", { name }), [...byLabel.keys()], { note });
+    const c = picked && byLabel.get(picked.value);
+    if (!c) return;
+    const open = tileOf(c.id);
+    if (open) return this.setActive(open, true);
+    const taken = [...(await api.listSessions()), ...this.tiles.values()];
+    const key = keyOf({ path, agent: "claude", instance: nextInstance(taken, path, "claude") });
+    this.resuming.set(key, c.id);
+    await this.openTile(key);
+  }
+
   /** Another session of the same agent in the same project, next to it. */
   private async openSub(tile: Tile): Promise<void> {
     const sessions = await api.listSessions();
@@ -506,6 +559,28 @@ export class App {
     else this.grid.classList.remove("has-full");
   }
 
+  /** ⌘Q or ✕: the tile goes, and ⌘⇧T can bring it back. */
+  private closeByUser(key: string): void {
+    const tile = this.tiles.get(key);
+    if (!tile) return;
+    const sessionId = this.hook.get(tile.slug)?.sessionId ?? null;
+    this.closed = [...this.closed.filter((c) => c.key !== key), { key, sessionId }].slice(-CLOSED_KEPT);
+    this.closeTile(key);
+  }
+
+  /** ⌘⇧T: the last closed tile again. Its session still runs in tmux and is
+   *  attached as it was; one that ended starts again, Claude with its
+   *  conversation (`--resume`). */
+  private async reopenClosed(): Promise<void> {
+    let last = this.closed.pop();
+    while (last && this.tiles.has(last.key)) last = this.closed.pop(); // opened again meanwhile
+    if (!last) return toast(t("app.nothingToReopen"));
+    const { key, sessionId } = last;
+    const alive = (await api.listSessions()).some((s) => keyOf(s) === key);
+    if (!alive && sessionId && parseKey(key).agent === "claude") this.resuming.set(key, sessionId);
+    await this.openTile(key);
+  }
+
   async killSession(key: string): Promise<void> {
     const spec = parseKey(key);
     const name = spec.path.split(/[\\/]/).pop() ?? spec.path;
@@ -515,6 +590,7 @@ export class App {
     const slug = tile?.slug ?? (await api.listSessions()).find((s) => keyOf(s) === key)?.slug;
     if (slug) await api.killSession(slug).catch((err) => toast(String(err)));
     this.running.delete(key);
+    this.closed = this.closed.filter((c) => c.key !== key); // killed: nothing to reopen
     const forgotten = [this.layout.runs, this.layout.cards, this.layout.titles, this.layout.sizes].some((m) => key in m);
     if (forgotten || this.layout.minimized.includes(key)) {
       delete this.layout.runs[key];
@@ -534,7 +610,7 @@ export class App {
       return this.setActive(tile.key, false);
     }
     if (action === "minimize") return this.toggleMinimized(tile.key);
-    if (action === "close") return this.closeTile(tile.key);
+    if (action === "close") return this.closeByUser(tile.key);
     if (action === "kill") return this.killSession(tile.key);
     if (action === "fullscreen") return this.toggleFullscreen(tile.key);
     if (action === "sub") return this.openSub(tile);
@@ -1314,11 +1390,25 @@ export class App {
       : "";
     this.top.innerHTML = `${leave}<span class="brand"${drag}>desk</span>${hide}<span class="dim"${drag}> · ${this.tiles.size} sessions</span>${
       waiting ? `<span class="waiting-pill"${drag}>${t("top.waiting", { n: waiting })}</span>` : ""
-    }<span class="spacer"${drag}></span>${this.updateHtml()}${usageHtml(this.usage, Date.now())}<button class="top-btn" data-top="browser" title="${t("top.browserTitle", { keys: keysIn("⌘W") })}">${t("top.browser")}</button>${this.coffeeHtml()}`;
+    }<span class="spacer"${drag}></span>${this.updateHtml()}${usageHtml(this.usage, Date.now())}<button class="top-btn" data-top="browser" title="${t("top.browserTitle", { keys: keysIn("⌘W") })}">${t("top.browser")}</button>${this.coffeeHtml()}${this.quitHtml()}`;
     this.footer.innerHTML =
       `<span class="hints">${hints()
         .map(([k, label]) => `<span><kbd>${k}</kbd> ${escapeHtml(label)}</span>`)
         .join("")}</span><span class="counts"><b>${this.tiles.size}</b> sessions · <span class="c-working">${count("working")} working</span> · <span class="c-waiting">${waiting} waiting</span> · ${count("idle")} idle</span>${this.pinHtml()}`;
+  }
+
+  /** ⏻ at the end of the top bar while docked: the dropdown has no menu, and ⌘Q closes a tile. */
+  private quitHtml(): string {
+    if (!this.docked) return "";
+    const keys = keyText("quit");
+    return `<button class="top-btn quit" data-top="quit" title="${escapeHtml(t("top.quitTitle", { keys: keys ? ` (${keys})` : "" }))}">⏻</button>`;
+  }
+
+  private async quit(): Promise<void> {
+    const sessions = this.tmuxMissing || PLATFORM === "windows" ? t("update.sessionsEnd") : t("update.sessionsStay");
+    if (!(await confirmBox(t("top.quitConfirm", { sessions }), t("top.quit")))) return;
+    await this.saveNow();
+    await api.quitDesk().catch((err) => toast(String(err)));
   }
 
   // ---- updates -----------------------------------------------------------
@@ -1495,6 +1585,8 @@ export class App {
     if (this.settings.isRecording) return; // the dropdown's new shortcut
     const action = actionFor(e);
     if (!action) return;
+    // ⌘S in the side panel's editor saves the file there.
+    if (action.type === "sessions" && (e.target as Element | null)?.closest?.(".cm-editor")) return;
     const overlay = document.querySelector(".overlay") !== null;
     if (overlay && !["palette", "new", "settings", "close"].includes(action.type)) return; // e.g. ⌘↵ in the palette
     e.preventDefault();
@@ -1528,6 +1620,11 @@ export class App {
         this.palette.close();
         void this.settings.toggle();
         break;
+      case "quit":
+        this.palette.close();
+        this.settings.close();
+        void this.quit();
+        break;
       case "preview":
         this.side.toggle();
         break;
@@ -1537,10 +1634,13 @@ export class App {
       case "close":
         if (this.palette.isOpen) this.palette.close();
         else if (this.settings.isOpen) this.settings.close();
-        else if (this.active) this.closeTile(this.active);
+        else if (this.active) this.closeByUser(this.active);
         break;
       case "kill":
         if (this.active) void this.killSession(this.active);
+        break;
+      case "reopen":
+        void this.reopenClosed();
         break;
       case "coffee":
         void this.cycleCoffee();
@@ -1551,6 +1651,15 @@ export class App {
       case "chat":
         void this.openChat();
         break;
+      case "sessions": {
+        const tile = this.tiles.get(this.active ?? "");
+        if (!tile) {
+          toast(t("app.pickTileFirst"));
+          break;
+        }
+        void this.pickConversation(tile.path);
+        break;
+      }
       case "sub": {
         const t = this.tiles.get(this.active ?? "");
         if (t) void this.openSub(t);

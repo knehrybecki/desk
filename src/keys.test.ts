@@ -20,6 +20,8 @@ describe("actionFor", () => {
     expect(mac(k("q"))).toEqual({ type: "close" });
     expect(mac(k("z"))).toBeNull(); // ⌘Z is undo again
     expect(mac(k("Q", { shiftKey: true }))).toEqual({ type: "kill" });
+    expect(mac(k("T", { shiftKey: true }))).toEqual({ type: "reopen" });
+    expect(actionFor({ ...k("T"), metaKey: false, ctrlKey: true, shiftKey: true, altKey: true, code: "KeyT" }, "linux")).toEqual({ type: "reopen" });
     expect(mac(k("Z", { shiftKey: true }))).toBeNull(); // redo
     expect(mac(k("3"))).toEqual({ type: "focus", index: 2 });
     expect(mac(k("e"))).toEqual({ type: "fullscreen" });
@@ -29,6 +31,7 @@ describe("actionFor", () => {
     expect(mac(k("k"))).toEqual({ type: "coffee" });
     expect(mac(k("b"))).toEqual({ type: "lock" });
     expect(mac(k("r"))).toEqual({ type: "chat" });
+    expect(mac(k("s"))).toEqual({ type: "sessions" });
     expect(mac(k("t"))).toEqual({ type: "terminal" });
     expect(mac(k("f"))).toEqual({ type: "files" });
     expect(mac(k("u"))).toEqual({ type: "run" });
@@ -81,6 +84,18 @@ describe("custom shortcuts", () => {
       expect(hints("mac")[0]).toEqual(["⇧⌘P", "projekty"]);
       expect(keyText("palette", "mac")).toBe("⇧⌘P");
       expect(keysIn("Otwórz (⌘P), zwiń (⌘J)", "mac")).toBe("Otwórz (⇧⌘P), zwiń (⌘J)");
+    } finally {
+      setCustomKeys({});
+    }
+  });
+
+  it("quit desk has no key until one is set (⌘Q closes a tile)", () => {
+    expect(keyText("quit", "mac")).toBe("");
+    expect(keyText("quit", "windows")).toBe("");
+    setCustomKeys({ quit: "Super+Alt+KeyQ" });
+    try {
+      expect(mac(k("q", { altKey: true }))).toEqual({ type: "quit" });
+      expect(mac(k("q"))).toEqual({ type: "close" });
     } finally {
       setCustomKeys({});
     }

@@ -64,7 +64,7 @@ w przeglądarce. Klikalne są też ścieżki względne, np. `docs/plan.md`, licz
   tabelę oraz kod i tekst.
 - **Edytuje** kod i tekst od razu, z kolorowaniem składni w kolorach motywu. Markdown, diagramy
   i tabele startują jako podgląd, a ✎ przełącza je na edytor. ⌘S zapisuje, ⌘Z / ⌘⇧Z cofa i ponawia.
-- **Pasek adresu** działa jak w przeglądarce: wstecz, odśwież, wpisany adres albo ścieżka. „🌐 przeglądarka”
+- **Pasek adresu** działa jak w przeglądarce: wstecz, odśwież, wpisany adres albo ścieżka. 🌐
   u góry otwiera panel od razu z paskiem.
 - **Strony poza desk:** ↗ otwiera stronę w Brave, a gdy go nie ma w Chrome (do zmiany w Opcjach,
   także na przeglądarkę systemową), a plik w jego domyślnym programie. Panel nie ma rozszerzeń, więc
@@ -123,6 +123,7 @@ Zmieniają okno i terminale od razu.
 | **Agenci** | Claude Code, Codex, opencode, Gemini, aider, shell, a w Opcjach także własne komendy. Tab w palecie przełącza agenta. |
 | **Druga sesja** | Kilka sesji w jednym projekcie (⌘D), w jednej ramce projektu: pod sobą, obok siebie albo w zakładkach (ikony w nagłówku ramki). ⌘T dokłada do niej zwykły terminal. |
 | **Rozmowa** | ⌘R: czat o czymkolwiek, bez projektu, każdy we własnej ramce i czystym folderze. Zachowanie ustawiasz w `rozmowa/CLAUDE.md` w danych desk. |
+| **Ostatnie rozmowy** | ⌘S: rozmowy Claude z projektu aktywnego kafelka, od najnowszej, z tytułem i branchem. Wybrana wraca w nowym kafelku (`claude --resume`), a otwarta tylko dostaje fokus. |
 | **Limity** | Górny pasek: zużycie planu (5h / 7d) dla otwartych agentów, z czasem do resetu (↻2h13m). Claude z konta co 5 min i ze status line sesji, Codex z `~/.codex/sessions`. Bursztyn od 70%, czerwień od 90%. |
 | **Układ** | Ramki stoją tam, gdzie je przeciągniesz (przy brzegu kolumny powstaje nowa), a linie między kolumnami, ramkami i sesjami zmieniają rozmiar. Nowy projekt trafia w wolne miejsce, a ⌘L układa wszystko od nowa. W Opcjach wyłączysz dokładanie kolumn i ustawisz ich liczbę ręcznie. |
 | **Okno** | Otwiera się tam, gdzie je zamknięto: ten sam monitor, miejsce i rozmiar. Gdy monitora nie ma, okno otwiera się domyślnie. |
@@ -149,15 +150,17 @@ Zmieniają okno i terminale od razu.
 | ⌘F | pliki projektu | ⌘⇧Q | zabij sesję |
 | ⌘U | uruchom (dev serwer, testy...) | ✎ | nazwij kafelek (albo prawy klik na tytule), pusta nazwa wraca do domyślnej |
 | ⌘R | rozmowa | ⌘L | ułóż ramki od nowa |
+| ⌘S | ostatnie rozmowy Claude w projekcie | ⌘⇧T | przywróć zamknięty kafelek |
 | ⌘W | podgląd obok | **Terminal** | |
 | ⌘K | kawa | ⌘= / ⌘- / ⌘0 | czcionka większa / mniejsza / zwykła |
 | ⌘B | blokada | ⌘C / ⌘V | kopiuj zaznaczenie / wklej |
 | ⌘` | dropdown z góry ekranu | | |
 | ⌘O | opcje | | |
+| ⏻ | zamknij desk z dropdownu (z potwierdzeniem; skrót przypiszesz w Opcjach) | | |
 
 W palecie: ↵ otwiera, ⌘↵ włącza lub wyłącza autostart, ⌘⌫ zabija sesję, Tab wybiera agenta.
-Zwykłe Esc trafia do terminala, więc dalej przerywa Claude. desk zamyka się z menu (desk › Quit desk),
-a ⌘⇧Q przejmuje, zanim zrobi to macOS, więc skrót nie wylogowuje z systemu.
+Zwykłe Esc trafia do terminala, więc dalej przerywa Claude. desk zamyka się z menu (desk › Quit desk), a w dropdownie przyciskiem ⏻ na górnym pasku.
+⌘⇧Q desk przejmuje, zanim zrobi to macOS, więc skrót nie wylogowuje z systemu.
 
 Wszystkie poza ⌘1–9, kopiuj / wklej, klawiszami palety i ⌘S w edytorze zmienisz w Opcje → Skróty.
 Na Windows i Linuksie ⌘ to Ctrl⇧ (Ctrl⇧P, Ctrl⇧D...), a zabicie sesji to Ctrl⇧⌫.

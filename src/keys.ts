@@ -12,10 +12,12 @@ export type Action =
   | { type: "new" }
   | { type: "close" }
   | { type: "kill" }
+  | { type: "reopen" }
   | { type: "sub" }
   | { type: "coffee" }
   | { type: "lock" }
   | { type: "chat" }
+  | { type: "sessions" }
   | { type: "terminal" }
   | { type: "files" }
   | { type: "run" }
@@ -25,6 +27,7 @@ export type Action =
   | { type: "arrange" }
   | { type: "exitFullscreen" }
   | { type: "settings" }
+  | { type: "quit" }
   | { type: "preview" }
   | { type: "font"; step: 1 | -1 | 0 };
 
@@ -59,16 +62,21 @@ export const BINDINGS: Binding[] = [
   { id: "files", group: "window", action: { type: "files" }, mac: ["Super+KeyF"] },
   { id: "run", group: "window", action: { type: "run" }, mac: ["Super+KeyU"] },
   { id: "chat", group: "window", action: { type: "chat" }, mac: ["Super+KeyR"] },
+  { id: "sessions", group: "window", action: { type: "sessions" }, mac: ["Super+KeyS"] },
   { id: "preview", group: "window", action: { type: "preview" }, mac: ["Super+KeyW"] },
   { id: "coffee", group: "window", action: { type: "coffee" }, mac: ["Super+KeyK"] },
   { id: "lock", group: "window", action: { type: "lock" }, mac: ["Super+KeyB"] },
   { id: "settings", group: "window", action: { type: "settings" }, mac: ["Super+KeyO"] },
+  // None by default (⌘Q closes a tile): set one in Options, or use ⏻.
+  { id: "quit", group: "window", action: { type: "quit" }, mac: [] },
   { id: "fullscreen", group: "tiles", action: { type: "fullscreen" }, mac: ["Super+KeyE", "Super+Enter"] },
   { id: "exitFullscreen", group: "tiles", action: { type: "exitFullscreen" }, mac: ["Super+Escape"], other: [] }, // Ctrl+Shift+Esc is the Task Manager
   { id: "minimize", group: "tiles", action: { type: "minimize" }, mac: ["Super+KeyJ"] },
   { id: "arrange", group: "tiles", action: { type: "arrange" }, mac: ["Super+KeyL"] },
   { id: "close", group: "tiles", action: { type: "close" }, mac: ["Super+KeyQ"] },
   { id: "kill", group: "tiles", action: { type: "kill" }, mac: ["Super+Shift+KeyQ"], other: ["Control+Shift+Backspace"] },
+  // Like a browser's "reopen closed tab" (⌘Z stays undo in text fields).
+  { id: "reopen", group: "tiles", action: { type: "reopen" }, mac: ["Super+Shift+KeyT"], other: ["Control+Alt+Shift+KeyT"] },
   { id: "fontUp", group: "terminal", action: { type: "font", step: 1 }, mac: ["Super+Equal"] },
   { id: "fontDown", group: "terminal", action: { type: "font", step: -1 }, mac: ["Super+Minus"] },
   { id: "fontReset", group: "terminal", action: { type: "font", step: 0 }, mac: ["Super+Digit0"] },
@@ -185,7 +193,7 @@ export function actionFor(e: KeyLike, platform: Platform = PLATFORM): Action | n
 }
 
 /** Footer hints, by binding id (their labels are "hint.<id>"). */
-const HINTS = ["palette", "new", "sub", "terminal", "files", "run", "chat", "preview", "close", "kill", "focus", "fullscreen", "minimize", "coffee", "lock", "settings"];
+const HINTS = ["palette", "new", "sub", "terminal", "files", "run", "chat", "sessions", "preview", "close", "kill", "focus", "fullscreen", "minimize", "coffee", "lock", "settings"];
 
 /** Footer hints for the user's platform and shortcuts (the first key of each). */
 export function hints(platform: Platform = PLATFORM): [string, string][] {

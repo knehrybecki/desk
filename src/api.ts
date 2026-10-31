@@ -123,6 +123,19 @@ export interface SessionState {
   event: string;
   ts: number;
   message: string | null;
+  /** The Claude Code conversation in the tile. */
+  sessionId: string | null;
+}
+
+/** A Claude Code conversation held in a project (⌘S). */
+export interface Conversation {
+  id: string;
+  /** From `/rename`, else the one Claude Code gave it. */
+  title: string | null;
+  /** The first message typed in it, on one line. */
+  prompt: string;
+  branch: string | null;
+  modifiedMs: number;
 }
 
 export interface Bootstrap {
@@ -171,8 +184,11 @@ export const api = {
   bootstrap: () => invoke<Bootstrap>("bootstrap"),
   listProjects: (extra: string[]) => invoke<Project[]>("list_projects", { extra }),
   listSessions: () => invoke<SessionInfo[]>("list_sessions"),
-  openSession: (path: string, agent: string, instance: number, command?: string) =>
-    invoke<string>("open_session", { path, agent, instance, command: command ?? null }),
+  /** `resume`: a Claude conversation's id, to pick it up again (⌘S). */
+  openSession: (path: string, agent: string, instance: number, command?: string, resume?: string) =>
+    invoke<string>("open_session", { path, agent, instance, command: command ?? null, resume: resume ?? null }),
+  /** The project's newest Claude conversations (⌘S). */
+  recentConversations: (path: string) => invoke<Conversation[]>("recent_conversations", { path }),
   projectFiles: (path: string) => invoke<string[]>("project_files", { path }),
   openFile: (path: string, file: string) => invoke<void>("open_file", { path, file }),
   previewFile: (path: string, file: string, bounds: PreviewBounds) =>
@@ -202,6 +218,8 @@ export const api = {
   /** `password`: the account password typed on the lock screen (Linux). */
   unlockDesk: (password?: string) => invoke<void>("unlock_desk", { password: password ?? null }),
   isLocked: () => invoke<boolean>("is_locked"),
+  /** Quit desk (the page asks first); refused while locked. */
+  quitDesk: () => invoke<void>("quit_desk"),
   /** Register or drop ⌘` and refit the dropped-down window, as layout.json says. */
   dropdownApply: () => invoke<void>("dropdown_apply"),
   /** From the dropdown back to the ordinary window; the shortcut stays on. */
