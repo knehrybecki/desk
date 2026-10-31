@@ -1,6 +1,6 @@
 # Zmiany
 
-## Niewydane
+## 0.1.19 (2026-10-31)
 
 - **⌘` nie gubi się po otwarciu podglądu.** Gdy w panelu bocznym był otwarty link albo plik, desk
   przestawał widzieć własne okno: ⌘` nic nie robił, blokada nie zasłaniała ekranu, a miejsce okna
