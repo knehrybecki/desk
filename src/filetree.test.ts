@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addPaths, ancestors, buildTree, filterPaths, findNode, itemsLabel } from "./filetree";
+import { addPaths, ancestors, buildTree, filterPaths, clipKey, findNode, itemsLabel, menuSpot, pasteFolder } from "./filetree";
 
 const FILES = ["src/main.ts", "README.md", ".github/workflows/check.yml", "src/app.ts", "src-tauri/src/lib.rs", "docs/a10.md", "docs/a9.md"];
 
@@ -51,5 +51,38 @@ describe("file tree", () => {
       "25 elementów",
       "104 elementy",
     ]);
+  });
+});
+
+describe("copying a file", () => {
+  const key = (k: Partial<KeyboardEvent>) => ({ code: "KeyC", ctrlKey: false, metaKey: false, shiftKey: false, altKey: false, ...k });
+
+  it("takes ⌘C / ⌘V on macOS, Ctrl (+Shift) +C / +V elsewhere", () => {
+    expect(clipKey(key({ metaKey: true }), "mac")).toBe("copy");
+    expect(clipKey(key({ metaKey: true, code: "KeyV" }), "mac")).toBe("paste");
+    expect(clipKey(key({ ctrlKey: true }), "mac")).toBeNull();
+    expect(clipKey(key({ ctrlKey: true }), "linux")).toBe("copy");
+    expect(clipKey(key({ ctrlKey: true, shiftKey: true }), "linux")).toBe("copy");
+    expect(clipKey(key({ ctrlKey: true, code: "KeyV" }), "windows")).toBe("paste");
+    expect(clipKey(key({ ctrlKey: true, shiftKey: true, code: "KeyV" }), "linux")).toBe("paste");
+    expect(clipKey(key({ metaKey: true }), "linux")).toBeNull();
+    expect(clipKey(key({ ctrlKey: true, altKey: true }), "linux")).toBeNull();
+    expect(clipKey(key({ ctrlKey: true, code: "KeyX" }), "linux")).toBeNull();
+  });
+
+  it("pastes into a folder, or next to a file", () => {
+    expect(pasteFolder("src/app", true)).toBe("src/app");
+    expect(pasteFolder("src/app/main.ts", false)).toBe("src/app");
+    expect(pasteFolder("README.md", false)).toBe("");
+    expect(pasteFolder("", true)).toBe("");
+  });
+
+  it("keeps the menu inside the tree", () => {
+    const tree = { left: 700, top: 40, right: 950, bottom: 600 };
+    expect(menuSpot(720, 100, { width: 160, height: 30 }, tree)).toEqual({ left: 720, top: 100 });
+    expect(menuSpot(900, 100, { width: 160, height: 30 }, tree)).toEqual({ left: 790, top: 100 });
+    expect(menuSpot(900, 590, { width: 160, height: 30 }, tree)).toEqual({ left: 790, top: 570 });
+    // Wider than the tree: its left edge stays in.
+    expect(menuSpot(720, 100, { width: 300, height: 30 }, tree)).toEqual({ left: 700, top: 100 });
   });
 });

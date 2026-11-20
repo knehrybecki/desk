@@ -16,6 +16,7 @@ pub mod docker;
 pub mod drag;
 pub mod dropdown;
 pub mod env;
+pub mod file_clipboard;
 pub mod file_editor;
 pub mod files_window;
 pub mod core_temps;
@@ -820,6 +821,19 @@ fn reveal_path(path: String) -> Result<(), String> {
     project::reveal(Path::new(&path))
 }
 
+/// A file of the project at `path` to the clipboard, as a file to paste.
+#[tauri::command]
+fn copy_file(path: String, file: String) -> Result<(), String> {
+    file_clipboard::copy(Path::new(&path), &file)
+}
+
+/// The files in the clipboard into `dir` of the project at `path`; off the
+/// main thread, a folder may take a while. Returns where they went.
+#[tauri::command(async)]
+fn paste_files(path: String, dir: String) -> Result<Vec<String>, String> {
+    file_clipboard::paste(Path::new(&path), &dir)
+}
+
 #[tauri::command]
 fn preview_file(
     handle: AppHandle,
@@ -1142,6 +1156,8 @@ pub fn run() {
             open_file_at,
             check_file_editor,
             reveal_path,
+            copy_file,
+            paste_files,
             browser_name,
             update_check,
             update_install,

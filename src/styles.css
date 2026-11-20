@@ -3918,3 +3918,42 @@ p.up-model {
   color: var(--danger);
   font-weight: 600;
 }
+
+/* A file's right-click menu in the tree (treeview.ts), kept inside the tree. */
+.tree-menu {
+  position: fixed;
+  z-index: 30;
+  min-width: calc(160px * var(--ui-scale));
+  padding: calc(4px * var(--ui-scale));
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.22);
+}
+
+.tree-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: calc(24px * var(--ui-scale));
+  padding: 0 calc(8px * var(--ui-scale));
+  font: inherit;
+  color: var(--fg);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.tree-menu button:hover,
+.tree-menu button:focus {
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+}
+
+.tree-menu .keys {
+  color: var(--dim);
+}

@@ -161,6 +161,8 @@ export class Side implements Panel {
       file: (rel) => void this.openInTree(rel),
       folder: (rel) => void this.showFolder(rel),
       edit: (rel) => void this.openAt(rel, 1, this.tree.project ?? undefined),
+      copy: (rel) => void this.copyFile(rel),
+      paste: (dir) => void this.pasteFiles(dir),
     });
     if (!this.detached) {
       const find: FindPanel = new FindPanel({
@@ -266,6 +268,40 @@ export class Side implements Panel {
     this.tree.relabel();
     this.find?.relabel();
     if (this.isOpen) this.syncButtons();
+  }
+
+  /** A file of the tree's project to the clipboard, as a file to paste. */
+  private async copyFile(rel: string): Promise<void> {
+    const project = this.tree.project;
+    if (!project) return;
+    try {
+      await api.copyFile(project, rel);
+      toast(t("tree.copied", { name: rel.slice(rel.lastIndexOf("/") + 1) }), { kind: "ok", topic: "clipboard" });
+    } catch (err) {
+      toast(t("tree.copyError", { err: String(err) }), { kind: "error", topic: "clipboard" });
+    }
+  }
+
+  /** The clipboard's files into `dir` of the tree's project, then shown in the tree. */
+  private async pasteFiles(dir: string): Promise<void> {
+    const project = this.tree.project;
+    if (!project) return;
+    let pasted: string[];
+    try {
+      pasted = await api.pasteFiles(project, dir);
+    } catch (err) {
+      return toast(t("tree.pasteError", { err: String(err) }), { kind: "error", topic: "clipboard" });
+    }
+    const where = dir || (project.split(/[\\/]/).filter(Boolean).pop() ?? project);
+    const name = pasted.length === 1 ? pasted[0].slice(pasted[0].lastIndexOf("/") + 1) : itemsLabel(pasted.length);
+    toast(t("tree.pasted", { name, where }), { kind: "ok", topic: "clipboard" });
+    if (this.tree.project !== project) return;
+    await this.tree.refresh();
+    if (pasted[0]) this.tree.reveal(pasted[0]);
+    // A folder's card shown: its count of items again.
+    if (this.folder?.startsWith(project)) {
+      void this.showFolder(this.folder.slice(project.length).split(/[\\/]/).filter(Boolean).join("/"));
+    }
   }
 
   private attach(path: string): void {

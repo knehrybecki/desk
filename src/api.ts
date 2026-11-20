@@ -730,6 +730,10 @@ export const api = {
   searchFiles: (path: string, query: string) => invoke<string[]>("search_files", { path, query }),
   /** Show a file or folder in Finder / Explorer / the file manager. */
   revealPath: (path: string) => invoke<void>("reveal_path", { path }),
+  /** A project's file to the clipboard as a file (paste it in a folder, a chat, an email). */
+  copyFile: (path: string, file: string) => invoke<void>("copy_file", { path, file }),
+  /** The clipboard's files into the folder `dir` of a project ("" = the project); where they went. */
+  pasteFiles: (path: string, dir: string) => invoke<string[]>("paste_files", { path, dir }),
   writeText: (path: string, text: string) => invoke<void>("write_text", { path, text }),
   /** A web page in Brave / Chrome / the system browser (`browser`, see Layout), a file in its default app. */
   openExternal: (url: string, browser?: string) => invoke<void>("open_external", { url, browser }),

@@ -132,6 +132,12 @@ export const pl = {
   "tree.nothingFound": "nic nie znaleziono",
   "tree.searching": "szukam…",
   "tree.loading": "wczytuję…",
+  "tree.copyFile": "Kopiuj plik",
+  "tree.copied": "Skopiowano do schowka: {name}",
+  "tree.copyError": "Nie udało się skopiować pliku: {err}",
+  "tree.paste": "Wklej",
+  "tree.pasted": "Wklejono {name} do {where}",
+  "tree.pasteError": "Nie udało się wkleić: {err}",
 
   // top bar
   "top.leave": "▭ okno",
