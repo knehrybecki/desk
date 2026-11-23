@@ -1,5 +1,10 @@
 # Zmiany
 
+## 0.2.12 (2026-11-23)
+
+- W palecie projektów klawiszem Tab można teraz wybrać `antigravity`, żeby otworzyć kafelek z Gemini 4 Neon High. Przy pierwszym uruchomieniu desk instaluje brakujące CLI.
+- Górny pasek pokazuje procent wykorzystanego limitu Antigravity i czas do resetu, gdy CLI udostępni dane. Wpisz `/usage` w kafelku, aby odświeżyć limity.
+
 ## 0.2.11 (2026-11-23)
 
 - **Pasek szukania w edytorze w stylu desk.** ⌘F (Ctrl+F) w edytorze panelu i w podglądzie
