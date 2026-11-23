@@ -24,6 +24,7 @@ import {
 } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import { dotenv, isDotenv } from "./dotenv";
+import { createSearchPanel } from "./search-panel";
 
 /** ANSI color `n` of the active theme. */
 const ansi = (n: number) => `var(--ansi-${n})`;
@@ -59,8 +60,12 @@ const look = EditorView.theme({
   ".cm-matchingBracket": { backgroundColor: "color-mix(in srgb, var(--accent) 25%, transparent)", outline: "none" },
   ".cm-selectionMatch": { backgroundColor: "color-mix(in srgb, var(--waiting) 18%, transparent)" },
   ".cm-searchMatch": { backgroundColor: "color-mix(in srgb, var(--waiting) 30%, transparent)" },
+  ".cm-searchMatch.cm-searchMatch-selected": {
+    backgroundColor: "color-mix(in srgb, var(--waiting) 60%, transparent)",
+    outline: "1px solid var(--waiting)",
+  },
   ".cm-panels": { backgroundColor: "var(--panel)", color: "var(--fg)" },
-  ".cm-panels input, .cm-panels button": { font: "inherit", color: "var(--fg)" },
+  ".cm-panels.cm-panels-top": { borderBottom: "1px solid var(--line)" },
 });
 
 export interface Editor {
@@ -97,7 +102,7 @@ export function createEditor(
         bracketMatching(),
         highlightActiveLine(),
         highlightSelectionMatches(),
-        search({ top: true }),
+        search({ top: true, createPanel: createSearchPanel }),
         EditorState.tabSize.of(2),
         opts.readOnly ? EditorState.readOnly.of(true) : [],
         // Prose wraps; code keeps its lines (and scrolls sideways).
