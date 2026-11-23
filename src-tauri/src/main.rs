@@ -7,6 +7,9 @@ fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
         Some("--desk-hook") => desk_lib::hooks::run_hook(args.get(1).map_or("", String::as_str)),
+        Some("--desk-antigravity-statusline") => {
+            desk_lib::antigravity::statusline(args.get(1).is_some_and(|s| s == "--forward"))
+        }
         Some("--desk-statusline") => desk_lib::usage::run_statusline(),
         // Claude Code's Ctrl+G editor: rewrite the prompt (prompt_ai.rs).
         Some("--desk-prompt-editor") => desk_lib::prompt_ai::run(

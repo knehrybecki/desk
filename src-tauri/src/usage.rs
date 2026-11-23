@@ -179,7 +179,11 @@ pub fn usage(agents: &[String], accounts: &[ClaudeAccount], state_dir: &Path, ho
                     resets: c.resets,
                 })
                 .collect(),
-            "codex" => codex(&home.join(".codex/sessions"), now)
+            "antigravity" | "codex" => (if a == "antigravity" {
+                crate::antigravity::windows(state_dir, now)
+            } else {
+                codex(&home.join(".codex/sessions"), now)
+            })
                 .map(|windows| Usage {
                     agent: a.clone(),
                     account: None,
