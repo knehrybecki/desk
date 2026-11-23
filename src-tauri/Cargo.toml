@@ -1,6 +1,6 @@
 [package]
 name = "desk"
-version = "0.2.10"
+version = "0.2.11"
 description = "Grid of Claude Code sessions, one per project"
 authors = ["Kamil"]
 edition = "2024"
@@ -30,6 +30,8 @@ url = "2"
 percent-encoding = "2"
 pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
 tauri-plugin-clipboard-manager = "2.5.0"
+# A file to the clipboard (file_clipboard.rs): the plugin copies text and images only.
+arboard = { version = "3.6", features = ["wayland-data-control"] }
 tauri-plugin-global-shortcut = "2"
 # Userspace WireGuard for the prompt rewriter (wg_tunnel.rs): no system VPN.
 onetun = { version = "0.3.10", default-features = false }

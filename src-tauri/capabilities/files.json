@@ -15,6 +15,8 @@
     "allow-search-files",
     "allow-open-file-at",
     "allow-reveal-path",
+    "allow-copy-file",
+    "allow-paste-files",
     "allow-browser-name",
     "allow-preview-file",
     "allow-open-preview",

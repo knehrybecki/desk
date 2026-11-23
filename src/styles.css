@@ -3918,3 +3918,154 @@ p.up-model {
   color: var(--danger);
   font-weight: 600;
 }
+
+/* ---- Editor search bar (search-panel.ts): in the panel's editor and the Find in Files preview ---- */
+.cm-panel.desk-search {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--ui-scale, 1));
+  padding: calc(5px * var(--ui-scale, 1)) calc(6px * var(--ui-scale, 1));
+  font-size: 12px;
+}
+
+.desk-search .ds-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.desk-search .ds-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  height: calc(22px * var(--ui-scale, 1));
+  margin-right: calc(4px * var(--ui-scale, 1));
+  background: var(--bg);
+  border: 1px solid var(--line-hi);
+  border-radius: 4px;
+}
+
+.desk-search .ds-field:focus-within {
+  border-color: var(--accent);
+}
+
+.desk-search.ds-none .ds-row:first-child .ds-field {
+  border-color: var(--danger);
+}
+
+.desk-search .ds-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 calc(7px * var(--ui-scale, 1));
+  font-family: var(--mono);
+  font-size: inherit;
+  color: var(--fg);
+  background: none;
+  border: none;
+  outline: none;
+  user-select: text;
+}
+
+.desk-search .ds-count {
+  flex: none;
+  padding: 0 calc(7px * var(--ui-scale, 1)) 0 calc(4px * var(--ui-scale, 1));
+  color: var(--dim);
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.desk-search.ds-none .ds-count {
+  color: var(--danger);
+}
+
+.desk-search button {
+  flex: none;
+  min-width: calc(22px * var(--ui-scale, 1));
+  height: calc(22px * var(--ui-scale, 1));
+  margin: 0;
+  padding: 0 calc(5px * var(--ui-scale, 1));
+  font: inherit;
+  line-height: 1;
+  color: var(--dim);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: default;
+}
+
+.desk-search button:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+.desk-search .ds-toggle {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+
+.desk-search .ds-toggle.on {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.desk-search .ds-text {
+  padding: 0 calc(8px * var(--ui-scale, 1));
+  border-color: var(--line-hi);
+}
+
+.desk-search .ds-sep {
+  flex: none;
+  width: 1px;
+  height: calc(14px * var(--ui-scale, 1));
+  margin: 0 calc(4px * var(--ui-scale, 1));
+  background: var(--line-hi);
+}
+
+.desk-search .ds-close {
+  margin-left: 2px;
+  font-size: 1.15em;
+}
+
+/* A file's right-click menu in the tree (treeview.ts), kept inside the tree. */
+.tree-menu {
+  position: fixed;
+  z-index: 30;
+  min-width: calc(160px * var(--ui-scale));
+  padding: calc(4px * var(--ui-scale));
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.22);
+}
+
+.tree-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: calc(24px * var(--ui-scale));
+  padding: 0 calc(8px * var(--ui-scale));
+  font: inherit;
+  color: var(--fg);
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.tree-menu button:hover,
+.tree-menu button:focus {
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+}
+
+.tree-menu .keys {
+  color: var(--dim);
+}

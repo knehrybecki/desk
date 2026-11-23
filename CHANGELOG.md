@@ -1,5 +1,18 @@
 # Zmiany
 
+## 0.2.11 (2026-11-23)
+
+- **Pasek szukania w edytorze w stylu desk.** ⌘F (Ctrl+F) w edytorze panelu i w podglądzie
+  „Szukaj w plikach” otwiera jeden wiersz jak w „Szukaj w plikach”: pole z licznikiem trafień
+  („3/12”), przełączniki Aa, W i .\*, strzałki ↑ ↓ i ×. Gdy nic nie pasuje albo wyrażenie jest
+  błędne, ramka i licznik robią się czerwone. Wiersz „Zamień” jest tylko tam, gdzie plik można
+  edytować: ↵ zamienia jedno trafienie, ⌘↵ (Ctrl+↵) wszystkie. Napisy po polsku i angielsku.
+- **Kopiuj i wklej pliki w drzewie.** ⌘C / ⌘V (Ctrl+C / Ctrl+V) na wierszu albo menu pod prawym
+  przyciskiem („Kopiuj plik”, „Wklej”). Skopiowany plik trafia do schowka jako plik, więc wkleisz
+  go w Finderze, czacie czy mailu. Pliki skopiowane gdziekolwiek wklejają się do folderu
+  projektu: na folderze do niego, na pliku obok niego, w pustym miejscu do katalogu projektu.
+  Foldery kopiują się z zawartością, a zajęta nazwa dostaje „ (2)”, nic nie jest nadpisywane.
+
 ## 0.2.10 (2026-11-20)
 
 - **Szukaj w plikach.** ⇧⌘F na macOS (Ctrl+Alt+Shift+F na Linuksie i Windows) otwiera okienko
