@@ -24,6 +24,8 @@ const COMMANDS: &[&str] = &[
     "open_file_at",
     "check_file_editor",
     "reveal_path",
+    "copy_file",
+    "paste_files",
     "browser_name",
     "update_check",
     "update_install",

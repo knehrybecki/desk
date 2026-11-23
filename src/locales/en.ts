@@ -146,6 +146,12 @@ export const en: Messages = {
   "tree.nothingFound": "nothing found",
   "tree.searching": "searching…",
   "tree.loading": "loading…",
+  "tree.copyFile": "Copy file",
+  "tree.copied": "Copied to the clipboard: {name}",
+  "tree.copyError": "Could not copy the file: {err}",
+  "tree.paste": "Paste",
+  "tree.pasted": "Pasted {name} into {where}",
+  "tree.pasteError": "Could not paste: {err}",
 
   // top bar
   "top.leave": "▭ window",

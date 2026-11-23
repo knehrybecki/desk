@@ -1,6 +1,7 @@
 // The side panel's file tree: built from the project's file list
 // (`git ls-files` or a walk), filtered by name.
 import { tn } from "./i18n";
+import { PLATFORM, type Platform } from "./platform";
 
 export interface TreeNode {
   name: string;
@@ -97,4 +98,37 @@ export function ancestors(path: string): string[] {
 /** "1 element", "3 elementy", "12 elementów" ("3 items" in English). */
 export function itemsLabel(n: number): string {
   return tn("side.items", n);
+}
+
+type CopyKey = Pick<KeyboardEvent, "code" | "ctrlKey" | "metaKey" | "shiftKey" | "altKey">;
+
+/** ⌘C / ⌘V on macOS; Ctrl+C / Ctrl+V elsewhere, or with Shift as in desk's terminals. */
+export function clipKey(e: CopyKey, platform: Platform = PLATFORM): "copy" | "paste" | null {
+  if ((e.code !== "KeyC" && e.code !== "KeyV") || e.altKey) return null;
+  const mod = platform === "mac" ? e.metaKey && !e.ctrlKey && !e.shiftKey : e.ctrlKey && !e.metaKey;
+  if (!mod) return null;
+  return e.code === "KeyC" ? "copy" : "paste";
+}
+
+/** The folder a paste on `rel` goes to: a folder itself, a file's folder ("" = the project). */
+export function pasteFolder(rel: string, dir: boolean): string {
+  return dir ? rel : rel.slice(0, Math.max(0, rel.lastIndexOf("/")));
+}
+
+interface Box {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+/**
+ * Where a menu opened at (x, y) goes: inside the tree, so a page shown
+ * beside it (a native view above desk's own) never covers it.
+ */
+export function menuSpot(x: number, y: number, size: { width: number; height: number }, tree: Box): { left: number; top: number } {
+  return {
+    left: Math.max(tree.left, Math.min(x, tree.right - size.width)),
+    top: Math.max(tree.top, Math.min(y, tree.bottom - size.height)),
+  };
 }
