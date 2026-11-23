@@ -10,6 +10,7 @@ pub const BUILTIN: &[(&str, &str)] = &[
     ("claude", "claude"),
     ("codex", "codex"),
     ("opencode", "opencode"),
+    ("antigravity", "agy --model gemini-4-neon-high"),
     ("gemini", "gemini"),
     ("aider", "aider"),
     ("cursor", "cursor-agent"),
@@ -28,6 +29,10 @@ fn installer(id: &str) -> Option<(&'static str, &'static str)> {
         "opencode" => (
             "curl -fsSL https://opencode.ai/install | bash",
             "npm install -g opencode-ai",
+        ),
+        "antigravity" => (
+            "curl -fsSL https://antigravity.google/cli/install.sh | bash",
+            "irm https://antigravity.google/cli/install.ps1 | iex",
         ),
         "gemini" => (
             "npm install -g @google/gemini-cli",

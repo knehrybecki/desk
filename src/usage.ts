@@ -43,10 +43,10 @@ export function usageHtml(list: Usage[], nowMs: number, account: AccountLabel = 
     .map((u) => {
       const state = chipState(u, nowMs);
       const parts = u.windows
-        .map((w) => `${w.label} ${Math.round(w.usedPercent)}% <span class="reset">↻${shortReset(w.resetsAt, nowMs)}</span>`)
+        .map((w) => `${escapeHtml(w.label)} ${Math.round(w.usedPercent)}% <span class="reset">↻${shortReset(w.resetsAt, nowMs)}</span>`)
         .join(" · ");
       const lines = u.windows
-        .map((w) => t("usage.window", { label: w.label, percent: w.usedPercent.toFixed(1), time: resetsIn(w.resetsAt, nowMs) }))
+        .map((w) => t("usage.window", { label: escapeHtml(w.label), percent: w.usedPercent.toFixed(1), time: resetsIn(w.resetsAt, nowMs) }))
         .concat(state.reasons.map(escapeHtml))
         .join("\n");
       const dot = state.dot ? '<i class="dot"></i>' : "";

@@ -5,7 +5,7 @@
 **Jedno okno. Wszystkie sesje agentów. Każdy projekt na swoim miejscu.**
 
 Natywna aplikacja z siatką żywych terminali: po jednej sesji Claude Code
-(albo Codex, opencode, Gemini, aider, shell) na projekt.
+(albo Codex, opencode, Antigravity, Gemini, aider, shell) na projekt.
 
 ![macOS](https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-000000?style=flat-square&logo=linux&logoColor=white)
@@ -121,13 +121,13 @@ Zmieniają okno i terminale od razu.
 | **Projekty** | Sam znajduje repo git i projekty z `~/.claude/projects`. Worktree są pod repo głównym, a ręcznie dodasz dowolny folder. |
 | **Nowy projekt** | ⌘N tworzy folder (opcjonalnie `git init`) i od razu otwiera w nim sesję. |
 | **Autostart** | W Opcjach wybierasz projekty, które startują z desk. Domyślnie żaden. |
-| **Agenci** | Claude Code, Codex, opencode, Gemini, aider, shell, a w Opcjach także własne komendy. Tab w palecie przełącza agenta. |
+| **Agenci** | Claude Code, Codex, opencode, Antigravity (Gemini 4 Neon High), Gemini, aider, shell, a w Opcjach także własne komendy. Tab w palecie przełącza agenta. |
 | **Druga sesja** | Kilka sesji w jednym projekcie (⌘D), w jednej ramce projektu: pod sobą, obok siebie albo w zakładkach (ikony w nagłówku ramki). ⌘T dokłada do niej zwykły terminal. |
 | **Rozmowa** | ⌘R: czat o czymkolwiek, bez projektu, każdy we własnej ramce i czystym folderze. Zachowanie ustawiasz w `rozmowa/CLAUDE.md` w danych desk. |
 | **Ostatnie rozmowy** | ⌘S: rozmowy Claude z projektu aktywnego kafelka, od najnowszej, z tytułem i branchem. Wybrana wraca w nowym kafelku (`claude --resume`), a otwarta tylko dostaje fokus. |
 | **Zapisane rozmowy** | Nazwa kafelka z Claude (✎) zapisuje jego rozmowę. W ⌘S zapisane stoją na górze, zawsze wszystkie, pod Twoją nazwą, a wybrana wraca z tą nazwą także po zamknięciu kafelka i restarcie. ⌘↵ albo ✎ w ⌘S nazywa rozmowę, ⌘⌫ albo × usuwa ją z zapisanych. Po `/clear` nazwa zostaje przy starej rozmowie. |
 | **Sesje w tle** | ⌘Q zamyka kafelek, a sesja działa dalej. Gdy takie są, górny pasek pokazuje „N w tle”, a ⌘Y (albo klik w licznik) otwiera ich listę: ↵ otwiera sesję w kafelku, ⌘⌫ albo ✕ ją zabija, „Zabij wszystkie” kończy resztę. Przy zamykaniu desk (⏻) widać, które sesje zostaną, i można zabić wszystkie naraz. |
-| **Limity** | Górny pasek: zużycie planu (5h / 7d) dla otwartych agentów, z czasem do resetu (↻2h13m). Claude z konta co 5 min i ze status line sesji, Codex z `~/.codex/sessions`. Kolor z najgorszego limitu: ocena Anthropic, a bez niej bursztyn od 70% i czerwień od 90%; kropka, gdy ostrzega coś, czego licznik nie pokazuje (limit modelu, np. Fable, albo tempo). |
+| **Limity** | Górny pasek: zużycie planu (5h / 7d) dla otwartych agentów, z czasem do resetu (↻2h13m). Claude z konta co 5 min i ze status line sesji, Codex z `~/.codex/sessions`, Antigravity z limitów raportowanych przez CLI w otwartym kafelku (odświeżysz je komendą `/usage`). Kolor z najgorszego limitu: ocena Anthropic, a bez niej bursztyn od 70% i czerwień od 90%; kropka, gdy ostrzega coś, czego licznik nie pokazuje (limit modelu, np. Fable, albo tempo). |
 | **Szczegóły limitów** | Klik w licznik otwiera dymek (zakładki albo wszystko naraz, Opcje → Statystyki AI). **Teraz**: tempo i prognoza, czy limit skończy się przed resetem, dzienny budżet tygodnia, limity modeli i resety do `/limit-reset`. **Sesje**: model, koszt (cennik API, nie rachunek), cache i szacowany udział każdej sesji w oknie 5 h, liczony z kosztu sesji desk albo z transkryptów Claude Code. **Historia**: ostatnie 24 h i tydzień dzień po dniu; najechanie na słupek 24 h mówi, ile ma i od kiedy trwa jego okno 5 h, a kliknięcie pokazuje koszt i tokeny per model od początku tego okna (z transkryptów Claude Code). desk trzyma historię 8 dni w `usage-history.jsonl` w swoich danych. |
 | **Układ** | Ramki stoją tam, gdzie je przeciągniesz (przy brzegu kolumny powstaje nowa), a linie między kolumnami, ramkami i sesjami zmieniają rozmiar. Nowy projekt trafia w wolne miejsce, a ⌘L układa wszystko od nowa. W Opcjach wyłączysz dokładanie kolumn i ustawisz ich liczbę ręcznie. |
 | **Okno** | Otwiera się tam, gdzie je zamknięto: ten sam monitor, miejsce i rozmiar. Gdy monitora nie ma, okno otwiera się domyślnie. |
@@ -197,7 +197,7 @@ xattr -dr com.apple.quarantine /Applications/desk.app
   z repozytorium systemu. Twój własny `tmux` (3.2+) w PATH ma pierwszeństwo. Bez żadnego sesje kończą
   się razem z desk (jak na Windows), a okno o tym mówi.
 - **Agentów nie instalujesz ręcznie.** Pierwszy kafelek z brakującym agentem uruchamia jego oficjalny
-  instalator (Claude Code, Cursor, opencode i aider przez `curl`, Codex i Gemini przez `npm`, więc
+  instalator (Claude Code, Cursor, Antigravity, opencode i aider przez `curl`, Codex i Gemini przez `npm`, więc
   potrzebny jest Node.js), a potem samego agenta. W palecie taki agent ma znak ↓. desk bierze PATH
   z Twojej powłoki logowania, a do tego `~/.local/bin` i `~/.opencode/bin`.
 

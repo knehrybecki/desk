@@ -4,6 +4,7 @@ pub mod i18n;
 pub mod accounts;
 pub mod admin;
 pub mod agents;
+pub mod antigravity;
 pub mod backend;
 pub mod browser;
 pub mod busiest;
@@ -293,6 +294,19 @@ fn open_session(
         format!("claude --resume {id}")
     } else {
         agents::command_for(&agent, &layout.agents).ok_or_else(|| format!("unknown agent: {agent}"))?
+    };
+    let command = if agent == "antigravity" {
+        let path = app.hooks.settings.with_file_name("antigravity-settings.json");
+        antigravity::settings(&path, &home).map_err(|err| err.to_string())?;
+        let path = path.display().to_string();
+        let quoted = if cfg!(windows) {
+            agents::ps_quote(&path)
+        } else {
+            tmux::shell_quote(&path)
+        };
+        format!("{command} --settings {quoted}")
+    } else {
+        command
     };
     if app.sessions.has(&slug) {
         return Err(format!(
